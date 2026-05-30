@@ -55,7 +55,7 @@ chmod +x /tmp/voiceink-install.sh
 1. Поставит Homebrew и cmake (если нет)
 2. Переключит инструменты на полный Xcode
 3. Склонирует VoiceInk и соберёт `.app`
-4. Скачает модель Whisper Large v3 Turbo Quantized (547 МБ)
+4. Предложит выбрать модель (по умолчанию — Parakeet v3, качается прямо в VoiceInk)
 5. Поставит всё в `/Applications/`
 6. Запустит VoiceInk
 
@@ -65,8 +65,9 @@ chmod +x /tmp/voiceink-install.sh
 
 После запуска приложения:
 
-1. **AI Models → Local** → выбери модель → **Set as Default**
-   - **Large v3 Turbo (Quantized)** — рекомендую по умолчанию (multilingual, лучшее качество для русского, скрипт уже скачал)
+1. **AI Models** → выбери модель → дождись загрузки → **Set as Default**
+   - **Parakeet v3** — рекомендую по умолчанию на Apple Silicon (быстрее Whisper, легче по RAM, русский поддерживает; VoiceInk сам докачает модель)
+   - **Large v3 Turbo (Quantized)** — Whisper-вариант с отличным качеством русского (скрипт уже скачал, если ты выбрал его при установке)
    - **Apple Speech** — если хочется ещё легче (macOS 26+, ничего не занимает на диске; но русский нужно отдельно скачать в System Settings)
 2. **Transcription Language** → **Russian**
 3. **App Permissions** → дай три разрешения:
@@ -154,13 +155,14 @@ GitHub: https://github.com/Beingpax/VoiceInk
 
 | Модель | Размер | Качество русского | Скорость | RAM | Под какое железо |
 |---|---|---|---|---|---|
+| **Parakeet v3 (FluidAudio)** | качается в app | **★★★★★** | **очень быстро (ANE)** | **низкая** | **Apple Silicon M1+ — default** |
 | Apple Speech | 0 МБ (системная) | ★★★★ | мгновенно | минимум | любой Mac на macOS 26+ |
 | ggml-small | 465 МБ | ★★★ | ×3 реалтайма | ~1 ГБ | старые Intel-маки |
-| **Large v3 Turbo Quantized** | **547 МБ** | **★★★★★** | **×1.5 реалтайма** | **~2 ГБ** | **M1 / M2 8 ГБ — default** |
+| Large v3 Turbo Quantized | 547 МБ | ★★★★★ | ×1.5 реалтайма | ~2 ГБ | Whisper-вариант для M1/M2 8 ГБ |
 | Large v3 Turbo (full) | 1.5 ГБ | ★★★★★ | ×0.8 реалтайма | ~3 ГБ | M1/M2 16+ ГБ, M3, M4 |
 | Large v3 (full) | 2.9 ГБ | ★★★★★ | ×0.16 реалтайма | ~4 ГБ | M3 Pro / M4 Pro+ |
 
-**Скрипт по умолчанию ставит Large v3 Turbo Quantized** (547 МБ) — это лучший баланс на M1/M2 8 ГБ. При запуске спросит, не хочешь ли ты другую модель.
+**Скрипт по умолчанию предлагает Parakeet v3** на Apple Silicon — он быстрее Whisper, легче по RAM и докачивается прямо в VoiceInk (curl не нужен). При запуске спросит, не хочешь ли ты другую модель. На Intel-маках дефолт — Whisper Large v3 Turbo Quantized (547 МБ).
 
 **Если у тебя M3 / M4 / 16+ ГБ RAM** — стоит взять **Large v3 (full)** или **Large v3 Turbo (full)**: точность выше, скорость на твоём железе всё равно комфортная.
 

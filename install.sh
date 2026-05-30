@@ -96,38 +96,48 @@ say "VoiceInk установлен в /Applications/"
 MODELS_DIR="$HOME/Library/Application Support/com.prakashjoshipax.VoiceInk/WhisperModels"
 mkdir -p "$MODELS_DIR"
 
-# Определяем железо — рекомендация по умолчанию зависит от RAM
+# Определяем железо: на Apple Silicon дефолт — Parakeet v3 (через ANE, быстрый),
+# на Intel — Whisper (Parakeet ускоряется только на Apple Silicon)
+ARCH=$(uname -m)
 RAM_GB=$(( $(sysctl -n hw.memsize) / 1024 / 1024 / 1024 ))
-if (( RAM_GB <= 8 )); then
-  DEFAULT_CHOICE=2  # Turbo Quantized
+if [[ "$ARCH" == "arm64" ]]; then
+  DEFAULT_CHOICE=1  # Parakeet v3
 else
-  DEFAULT_CHOICE=3  # Turbo full
+  DEFAULT_CHOICE=3  # Whisper Turbo Quantized для Intel
 fi
 
 cat <<EOF
 
-  Выбери модель Whisper:
-    1) Apple Speech         — 0 МБ, нативно в macOS 26+ (русский — отдельно)
-    2) Large v3 Turbo Quant — 547 МБ, ★★★★★, для 8 ГБ RAM ← дефолт на твоём железе
-    3) Large v3 Turbo full  — 1.5 ГБ, ★★★★★, для 16+ ГБ RAM
-    4) Large v3 full        — 2.9 ГБ, ★★★★★, для M3/M4 Pro
+  Выбери модель распознавания:
+    1) Parakeet v3          — через FluidAudio, качается в самом VoiceInk.
+                              Быстрее Whisper, лёгкий по RAM, русский есть.
+                              Только Apple Silicon (M1+) ← рекомендую
+    2) Apple Speech         — 0 МБ, нативно в macOS 26+ (русский — отдельно)
+    3) Large v3 Turbo Quant — 547 МБ, Whisper, ★★★★★, для 8 ГБ RAM
+    4) Large v3 Turbo full  — 1.5 ГБ, Whisper, ★★★★★, для 16+ ГБ RAM
+    5) Large v3 full        — 2.9 ГБ, Whisper, ★★★★★, для M3/M4 Pro
 
-  У тебя ${RAM_GB} ГБ RAM. Рекомендация: вариант ${DEFAULT_CHOICE}.
+  У тебя ${ARCH}, ${RAM_GB} ГБ RAM. Рекомендация: вариант ${DEFAULT_CHOICE}.
 
 EOF
-read -p "  Какой ставим? [1/2/3/4, Enter = $DEFAULT_CHOICE]: " CHOICE
+read -p "  Какой ставим? [1-5, Enter = $DEFAULT_CHOICE]: " CHOICE
 CHOICE=${CHOICE:-$DEFAULT_CHOICE}
 
 case $CHOICE in
   1)
+    say "Parakeet v3 — качается автоматически внутри VoiceInk, curl не нужен."
+    say "После запуска: AI Models → Parakeet v3 → дождись загрузки → Set as Default"
+    MODEL_FILE=""
+    ;;
+  2)
     say "Apple Speech — нативная, скачивать ничего не надо."
     say "После запуска: AI Models → Local → Apple Speech → Set as Default"
     say "Для русского: System Settings → Keyboard → Dictation → добавь Russian"
     MODEL_FILE=""
     ;;
-  2) MODEL_FILE="ggml-large-v3-turbo-q5_0.bin" ;;
-  3) MODEL_FILE="ggml-large-v3-turbo.bin" ;;
-  4) MODEL_FILE="ggml-large-v3.bin" ;;
+  3) MODEL_FILE="ggml-large-v3-turbo-q5_0.bin" ;;
+  4) MODEL_FILE="ggml-large-v3-turbo.bin" ;;
+  5) MODEL_FILE="ggml-large-v3.bin" ;;
   *) fail "Неверный выбор: $CHOICE" ;;
 esac
 
@@ -153,7 +163,7 @@ cat <<'EOF'
   ╠════════════════════════════════════════════════════════════╣
   ║                                                            ║
   ║  1. В VoiceInk → AI Models → Local                         ║
-  ║     Выбери "Large v3 Turbo (Quantized)" → Set as Default   ║
+  ║     Выбери «Parakeet v3» → загрузка → Set as Default   ║
   ║     (или "Apple Speech" если macOS 26+ и нужно ещё легче)  ║
   ║                                                            ║
   ║  2. Transcription Language → Russian                       ║
